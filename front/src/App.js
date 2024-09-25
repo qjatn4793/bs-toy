@@ -10,8 +10,8 @@ function App() {
     setLoading(true); // 로딩 시작
     try {
       const result = await fetchDockerServiceUrl(); // API 호출
-      setUrl(result.message); // URL 설정
-      setLogs(result.logs || ''); // 로그 설정
+      setUrl(result.containerUrl); // URL 설정
+      setLogs(result.message || ''); // 로그 설정
     } catch (error) {
       console.error('Error fetching service URL:', error);
       setLogs('Error occurred while creating the service'); // 오류 발생 시 로그 설정
