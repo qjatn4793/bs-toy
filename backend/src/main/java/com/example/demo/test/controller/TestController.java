@@ -1,5 +1,6 @@
 package com.example.demo.test.controller;
 
+import com.example.demo.test.dto.TestDto;
 import com.example.demo.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,29 +28,43 @@ public class TestController {
     }
 
 	@GetMapping("/create-docker-service")
-	public ResponseEntity<Map<String, String>> createDockerService() {
-	    log.info("도커 서비스를 생성하는 요청을 받았습니다.");
-	    Map<String, String> response = new HashMap<>();
+    public ResponseEntity<Map<String, String>> deployProject() {
+        log.info("도커 서비스를 생성하는 요청을 받았습니다.");
+        Map<String, String> response = new HashMap<>();
 
-	    if (!testService.buildProjectWithGradle()) {
-	        log.error("프로젝트 빌드에 실패했습니다.");
-	        response.put("error", "Failed to build the project");
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-	    }
+        // 리액트 앱 빌드
+        if (!testService.buildReactApp()) {
+            log.error("리액트 앱 빌드에 실패했습니다.");
+            response.put("error", "리액트 앱 빌드 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
 
-	    testService.createDockerfile();
-	    String containerId = testService.startDockerContainer();
+        // 백엔드 프로젝트 빌드
+        if (!testService.buildProjectWithGradle()) {
+            log.error("백엔드 프로젝트 빌드에 실패했습니다.");
+            response.put("error", "백엔드 프로젝트 빌드 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
 
-	    if (containerId != null) {
-	        String url = testService.getContainerUrl(containerId);
-	        log.info("도커 서비스가 성공적으로 생성되었습니다. URL: {}", url);
-	        response.put("message", url);
-	        response.put("logs", "도커 서비스가 성공적으로 생성되었습니다."); // 실제 로그를 수집하여 넣어줄 수 있음
-	        return ResponseEntity.ok(response);
-	    }
+        // Nginx 설정 파일 생성
+        testService.createNginxConfig();
 
-	    log.error("도커 서비스 생성에 실패했습니다.");
-	    response.put("error", "Failed to create Docker service");
-	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-	}
+        // 도커파일 생성
+        testService.createDockerfile();
+
+        // 도커 컨테이너 실행
+        TestDto testDto  = testService.startDockerContainer();
+        if (testDto != null) {
+            // 랜덤 포트 생성 및 URL 생성
+            String containerUrl = testService.getContainerUrl(testDto.getPort());
+            log.info("도커 서비스가 성공적으로 생성되었습니다. URL: {}", containerUrl);
+            response.put("message", "도커 서비스가 성공적으로 생성되었습니다.");
+            response.put("containerUrl", containerUrl);
+            return ResponseEntity.ok(response);
+        }
+
+        log.error("도커 서비스 생성에 실패했습니다.");
+        response.put("error", "도커 서비스 생성 실패");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 }
