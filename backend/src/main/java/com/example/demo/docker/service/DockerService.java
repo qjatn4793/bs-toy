@@ -1,11 +1,11 @@
-package com.example.demo.test.service;
+package com.example.demo.docker.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.test.dto.TestDto;
+import com.example.demo.docker.dto.DockerDto;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TestService {
+public class DockerService {
     @Value("${project.path}")
     private String PROJECT_PATH;
 
@@ -116,7 +116,7 @@ public class TestService {
     }
 
     // 도커 컨테이너 실행
-    public TestDto startDockerContainer() {
+    public DockerDto startDockerContainer() {
         String containerName = "my_combined_service_" + UUID.randomUUID().toString().substring(0, 8); // 컨테이너 이름 생성
         String imageName = "my_app_" + UUID.randomUUID().toString().substring(0, 8);
         int randomPort = getAvailablePort();
@@ -148,7 +148,7 @@ public class TestService {
 
             log.info("도커 컨테이너가 성공적으로 시작되었습니다. 컨테이너 ID: {} 및 포트: {}", containerId, randomPort);
             
-            TestDto testDto = new TestDto();
+            DockerDto testDto = new DockerDto();
             testDto.setContainerId(containerId);
             testDto.setPort(randomPort);
             

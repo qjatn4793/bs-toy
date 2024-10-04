@@ -1,7 +1,8 @@
-package com.example.demo.test.controller;
+package com.example.demo.docker.controller;
 
-import com.example.demo.test.dto.TestDto;
-import com.example.demo.test.service.TestService;
+import com.example.demo.docker.dto.DockerDto;
+import com.example.demo.docker.service.DockerService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,9 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class TestController {
+public class DockerController {
 
-	private final TestService testService;
+	private final DockerService testService;
 	
 	@GetMapping("/test")
     public String test() {
@@ -53,7 +54,7 @@ public class TestController {
         testService.createDockerfile();
 
         // 도커 컨테이너 실행
-        TestDto testDto  = testService.startDockerContainer();
+        DockerDto testDto  = testService.startDockerContainer();
         if (testDto != null) {
             // 랜덤 포트 생성 및 URL 생성
             String containerUrl = testService.getContainerUrl(testDto.getPort());
