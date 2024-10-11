@@ -23,7 +23,7 @@ const Login = () => {
   
     // 서버 응답 확인
     const responseText = await response.text(); // JSON 대신 텍스트로 응답을 가져오기
-    console.log(responseText); // 응답 내용 로그
+    // console.log(responseText); // 응답 내용 로그
   
     // 응답이 정상적일 경우에만 JSON으로 파싱
     if (response.ok) {
