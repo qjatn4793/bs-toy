@@ -10,7 +10,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // CORS 허용할 경로
                 .allowedOrigins("http://localhost:3200") // 리액트 앱의 주소
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용할 HTTP 메서드
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

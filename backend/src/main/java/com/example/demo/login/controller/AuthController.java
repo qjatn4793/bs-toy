@@ -1,6 +1,8 @@
 package com.example.demo.login.controller;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +11,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.login.config.JwtUtil;
 import com.example.demo.login.entity.User;
+import com.example.demo.login.entity.UserPrincipal;
 import com.example.demo.login.service.CustomUserDetailsService;
 import com.example.demo.login.service.UserService;
 
@@ -88,5 +93,19 @@ public class AuthController {
             log.error("사용자 {}의 로그인 실패: {}", user.getUsername(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
         }
+    }
+    
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        if (userPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("사용자 정보가 없습니다.");
+        }
+        
+        // 사용자 정보를 Map으로 반환 (id와 username 모두 반환)
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", userPrincipal.getId());
+        response.put("username", userPrincipal.getUsername());
+
+        return ResponseEntity.ok(response);
     }
 }
