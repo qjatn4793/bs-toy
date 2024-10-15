@@ -1,81 +1,75 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import axiosInstance from '../../utils/axiosInstance';
-import './Editor.css';
+import { useAuth } from '../../context/AuthContext'; // 사용자 인증 상태
+import axiosInstance from '../../utils/axiosInstance'; // API 통신
+import './Editor.css'; // 스타일 파일
 
 const Editor = () => {
-    const [header, setHeader] = useState('');
-    const [footer, setFooter] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
-    const [navLinks, setNavLinks] = useState([]); // 내비게이션 링크 상태
-    const [navLinkName, setNavLinkName] = useState(''); // 내비게이션 링크 이름
-    const [navLinkPath, setNavLinkPath] = useState(''); // 내비게이션 링크 경로
-    const [pageContents, setPageContents] = useState([]); // 각 내비게이션 링크의 페이지 내용
-    const [loading, setLoading] = useState(false);
-    const { user } = useAuth();
+    const [navLinks, setNavLinks] = useState([]); // navLink 상태 관리
+    const [newNavLink, setNewNavLink] = useState({ name: '', path: '', header: '', footer: '', content: '' }); // 새 링크
+    const [activeTab, setActiveTab] = useState(0); // 현재 선택된 탭 (NavLink 수정용)
+    const [loading, setLoading] = useState(false); // 로딩 상태
+    const { user } = useAuth(); // 사용자 정보
+    const [websiteName, setWebsiteName] = useState('');
 
+    // 새로운 navLink 추가
     const handleAddNavLink = () => {
-        // 최대 10개까지 내비게이션 링크 추가 가능
-        if (navLinks.length < 10 && navLinkName && navLinkPath) {
-            setNavLinks([...navLinks, { name: navLinkName, path: navLinkPath }]);
-            setPageContents([...pageContents, '']); // 새로운 페이지 내용 추가
-            setNavLinkName(''); // 입력 초기화
-            setNavLinkPath(''); // 입력 초기화
-        } else if (navLinks.length >= 10) {
-            alert('최대 10개의 내비게이션 링크를 추가할 수 있습니다.');
+        if (newNavLink.name && newNavLink.path) {
+            setNavLinks([...navLinks, newNavLink]); // 새로운 링크 추가
+            setNewNavLink({ name: '', path: '', header: '', footer: '', content: '' }); // 입력 초기화
         } else {
             alert('링크 이름과 경로를 입력해주세요.');
         }
     };
 
+    // navLink의 필드 변경
+    const handleNavLinkChange = (index, key, value) => {
+        const updatedLinks = [...navLinks];
+        updatedLinks[index][key] = value;
+        setNavLinks(updatedLinks);
+    };
+
+    // navLink 삭제
     const handleRemoveNavLink = (index) => {
-        const updatedNavLinks = navLinks.filter((_, i) => i !== index);
-        const updatedPageContents = pageContents.filter((_, i) => i !== index);
-        setNavLinks(updatedNavLinks); // 선택한 내비게이션 링크 삭제
-        setPageContents(updatedPageContents); // 선택한 페이지 내용 삭제
+        const updatedLinks = navLinks.filter((_, i) => i !== index);
+        setNavLinks(updatedLinks);
+        setActiveTab(0); // 첫 번째 탭으로 이동
     };
 
-    const handlePageContentChange = (index, content) => {
-        const updatedContents = [...pageContents];
-        updatedContents[index] = content;
-        setPageContents(updatedContents);
-    };
-
+    // 저장 버튼 클릭 시 처리
     const handleSave = async () => {
         if (!user) {
-            alert('로그인 후 웹사이트를 저장할 수 있습니다.');
+            alert('로그인 후 저장할 수 있습니다.');
             return;
         }
 
-        // 유효성 검사
-        if (!header || !footer || !imageUrl || navLinks.length === 0) {
-            alert('모든 필드를 채워주세요.');
+        // 내비게이션 링크가 1개 이상인지 확인
+        if (!websiteName || navLinks.length === 0) {
+            alert('웹사이트 이름과 최소 하나의 내비게이션 링크를 추가해주세요.');
             return;
+        }
+
+        // 각 링크에 필요한 필드가 채워졌는지 확인
+        for (const link of navLinks) {
+            if (!link.name || !link.path || !link.header || !link.footer || !link.content) {
+                alert('모든 내비게이션 링크의 필드를 채워주세요.');
+                return;
+            }
         }
 
         const websiteData = {
             userId: user.id,
-            headerContent: header,
-            footerContent: footer,
-            imageUrl: imageUrl,
-            navLinks: navLinks.map((link, index) => ({
-                ...link,
-                content: pageContents[index] // 각 링크에 대한 콘텐츠 추가
-            })),
+            userName: user.username,
+            websiteName, // 웹사이트 이름 추가
+            navLinks, // NavLinks만 저장
         };
 
         try {
-            setLoading(true); // 로딩 상태 설정
+            setLoading(true);
             const response = await axiosInstance.post(`/api/websites/save`, websiteData);
 
             if (response.status === 200 || response.status === 201) {
                 alert('Website saved successfully');
-                // 입력 초기화
-                setHeader('');
-                setFooter('');
-                setImageUrl('');
-                setNavLinks([]); // 내비게이션 링크 초기화
-                setPageContents([]); // 페이지 내용 초기화
+                setNavLinks([]); // 저장 후 입력 필드 초기화
             } else {
                 alert('Failed to save website');
             }
@@ -83,104 +77,114 @@ const Editor = () => {
             console.error('Error saving website:', error);
             alert('Error saving website');
         } finally {
-            setLoading(false); // 로딩 상태 해제
+            setLoading(false);
         }
     };
 
     return (
         <div className="editor-container">
-            <h1>웹사이트 빌더</h1>
+            <h1>홈페이지 빌더</h1>
             {user ? (
                 <div className="user-info">
                     <p>로그인 사용자: {user.username}</p>
                     <p>사용자 ID: {user.id}</p>
                 </div>
             ) : (
-                <p>로그인 후 웹사이트를 저장할 수 있습니다.</p>
+                <p>로그인 후 저장할 수 있습니다.</p>
             )}
+
+            {/* 홈페이지 이름 입력 섹션 */}
             <div className="input-group">
-                <label>헤더: </label>
+                <label>홈페이지 이름: </label>
                 <input
                     type="text"
-                    value={header}
-                    onChange={(e) => setHeader(e.target.value)}
-                    placeholder="웹사이트 제목"
-                />
-            </div>
-            <div className="input-group">
-                <label>푸터: </label>
-                <input
-                    type="text"
-                    value={footer}
-                    onChange={(e) => setFooter(e.target.value)}
-                    placeholder="연락처 정보"
-                />
-            </div>
-            <div className="input-group">
-                <label>이미지 URL: </label>
-                <input
-                    type="text"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="이미지 URL"
+                    value={websiteName}
+                    onChange={(e) => setWebsiteName(e.target.value)}
+                    placeholder="홈페이지 이름"
                 />
             </div>
 
-            {/* 내비게이션 링크 추가 섹션 */}
+            {/* 새로운 내비게이션 링크 추가 */}
             <div className="input-group">
                 <label>내비게이션 링크 이름: </label>
                 <input
                     type="text"
-                    value={navLinkName}
-                    onChange={(e) => setNavLinkName(e.target.value)}
-                    placeholder="링크 이름"
+                    value={newNavLink.name}
+                    onChange={(e) => setNewNavLink({ ...newNavLink, name: e.target.value })}
+                    placeholder="링크 이름 입력"
                 />
             </div>
             <div className="input-group">
                 <label>내비게이션 링크 경로: </label>
                 <input
                     type="text"
-                    value={navLinkPath}
-                    onChange={(e) => setNavLinkPath(e.target.value)}
-                    placeholder="링크 경로"
+                    value={newNavLink.path}
+                    onChange={(e) => setNewNavLink({ ...newNavLink, path: e.target.value })}
+                    placeholder="링크 경로 입력"
                 />
             </div>
             <button onClick={handleAddNavLink}>내비게이션 링크 추가</button>
 
             {/* 추가된 내비게이션 링크 리스트 */}
-            <div className="nav-links-list">
-                <h3>내비게이션 링크:</h3>
-                <ul>
-                    {navLinks.map((link, index) => (
-                        <li key={index}>
-                            {link.name} - {link.path}
-                            <button onClick={() => handleRemoveNavLink(index)}>삭제</button>
-                            
-                            {/* 각 내비게이션 링크에 대한 내용 입력 섹션 */}
-                            <div className="page-content">
-                                <h4>페이지 내용 입력 ({link.name}):</h4>
-                                <textarea
-                                    value={pageContents[index] || ''}
-                                    onChange={(e) => handlePageContentChange(index, e.target.value)}
-                                    placeholder="페이지에 대한 내용을 입력하세요."
-                                    style={{ width: '100%', height: '100px' }}
-                                />
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            {navLinks.length > 0 && (
+                <div className="nav-links-list">
+                    <h3>내비게이션 링크</h3>
+                    <ul>
+                        {navLinks.map((link, index) => (
+                            <li key={index} className={activeTab === index ? 'active' : ''}>
+                                <div onClick={() => setActiveTab(index)}>
+                                    {link.name} ({link.path})
+                                </div>
+                                <button onClick={() => handleRemoveNavLink(index)}>삭제</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* 선택된 내비게이션 링크 편집 */}
+            {navLinks.length > 0 && (
+                <div className="nav-link-editor">
+                    <h3>내비게이션 링크 편집: {navLinks[activeTab].name}</h3>
+                    <div className="input-group">
+                        <label>헤더</label>
+                        <input
+                            type="text"
+                            value={navLinks[activeTab].header}
+                            onChange={(e) => handleNavLinkChange(activeTab, 'header', e.target.value)}
+                            placeholder="페이지 헤더 입력"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label>푸터</label>
+                        <input
+                            type="text"
+                            value={navLinks[activeTab].footer}
+                            onChange={(e) => handleNavLinkChange(activeTab, 'footer', e.target.value)}
+                            placeholder="페이지 푸터 입력"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <label>내용</label>
+                        <textarea
+                            value={navLinks[activeTab].content}
+                            onChange={(e) => handleNavLinkChange(activeTab, 'content', e.target.value)}
+                            placeholder="페이지 내용 입력"
+                        />
+                    </div>
+                </div>
+            )}
 
             <button onClick={handleSave} disabled={loading}>
-                {loading ? '저장 중...' : '웹사이트 저장'}
+                {loading ? '저장 중...' : '저장'}
             </button>
 
-            {/* 미리보기 섹션 */}
-            <div className="preview-section">
-                <h2>미리보기</h2>
-                <div className="website-preview">
-                    <header style={{ background: '#f5f5f5', padding: '20px', textAlign: 'center' }}>
-                        <h1>{header}</h1>
+            {/* 미리보기 */}
+            {navLinks.length > 0 && (
+                <div className="preview-section">
+                    <h2>미리보기: {navLinks[activeTab].name}</h2>
+                    <header style={{ backgroundColor: '#f5f5f5', padding: '20px', textAlign: 'center' }}>
+                        <h1>{navLinks[activeTab].header}</h1>
                         <nav>
                             <ul style={{ listStyleType: 'none', padding: 0 }}>
                                 {navLinks.map((link, index) => (
@@ -194,19 +198,13 @@ const Editor = () => {
                         </nav>
                     </header>
                     <main style={{ padding: '20px' }}>
-                        {navLinks.map((link, index) => (
-                            <div key={index} id={link.path}>
-                                <h2>{link.name}</h2>
-                                <p>{pageContents[index]}</p>
-                            </div>
-                        ))}
-                        {imageUrl && <img src={imageUrl} alt="웹사이트 이미지" style={{ width: '100%', maxHeight: '300px', objectFit: 'cover' }} />}
+                        <p>{navLinks[activeTab].content}</p>
                     </main>
-                    <footer style={{ background: '#f5f5f5', padding: '10px', textAlign: 'center' }}>
-                        <p>{footer}</p>
+                    <footer style={{ backgroundColor: '#f5f5f5', padding: '10px', textAlign: 'center' }}>
+                        <p>{navLinks[activeTab].footer}</p>
                     </footer>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

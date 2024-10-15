@@ -15,6 +15,9 @@ public class NavLink {
 
     private String name; // 링크 이름
     private String path; // 링크 경로
+    private String header; // 페이지 헤더
+    private String footer; // 페이지 푸터
+    private String content; // 페이지 내용
 
     @ManyToOne
     @JoinColumn(name = "website_id", nullable = false) // 외래키 설정

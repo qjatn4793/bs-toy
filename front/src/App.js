@@ -13,6 +13,7 @@ import Chatbot from './pages/chat/Chatbot'; // 챗봇 페이지 추가
 import Stock from './pages/stock/StockPricePredictor'; // 주식 페이지 추가
 import Editor from './pages/websiteBuilder/Editor';         // 웹사이트 에디터 페이지 추가
 import WebsiteList from './pages/websiteBuilder/WebsiteList'; // 웹사이트 목록 페이지 추가
+import WebsiteDetail from './pages/websiteBuilder/WebsiteDetail'; // 웹사이트 상세보기 페이지 추가
 
 const AuthCheck = () => {
   const { isAuthenticated, isLoading } = useAuth(); // 인증 상태 및 로딩 상태 가져오기
@@ -60,6 +61,7 @@ function App() {
           {/* 웹사이트 빌더 관련 경로 추가 */}
           <Route path="/website-builder/editor" element={<ProtectedRoute component={Editor} />} />
           <Route path="/website-builder/list" element={<ProtectedRoute component={WebsiteList} />} />
+          <Route path="/website-builder/website/:websiteId" element={<ProtectedRoute component={WebsiteDetail} />} />
           
           {/* 404 Not Found 처리 */}
           <Route path="*" element={<Navigate to="/" />} />

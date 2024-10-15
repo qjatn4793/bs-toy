@@ -1,5 +1,6 @@
 package com.example.demo.webbuilder.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,19 @@ public class Website {
     private Long id;
 
     private String userId;
-    private String headerContent;
-    private String mainContent;
-    private String footerContent;
-    private String imageUrl;
+    
+    private String userName;
+    
+    private String websiteName;
+    
+    private LocalDateTime regDate;
 
     @OneToMany(mappedBy = "website", cascade = CascadeType.ALL, orphanRemoval = true) // 연관 관계 설정
     @JsonManagedReference // 직렬화 시 이 쪽만 처리
     private List<NavLink> navLinks = new ArrayList<>(); // 내비게이션 링크 리스트
+    
+    // 생성자에서 regDate를 현재 시간으로 설정
+    public Website() {
+        this.regDate = LocalDateTime.now();
+    }
 }
