@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext'; // 사용자 인증 상태
 import axiosInstance from '../../utils/axiosInstance'; // API 통신
-import './Editor.css'; // 스타일 파일
+import { useNavigate } from 'react-router-dom'; // useNavigate 추가
+import './WebsiteEditor.css'; // 스타일 파일
 
-const Editor = () => {
+const WebsiteEditor = () => {
     const [navLinks, setNavLinks] = useState([]); // navLink 상태 관리
     const [newNavLink, setNewNavLink] = useState({ name: '', path: '', header: '', footer: '', content: '' }); // 새 링크
     const [activeTab, setActiveTab] = useState(0); // 현재 선택된 탭 (NavLink 수정용)
     const [loading, setLoading] = useState(false); // 로딩 상태
     const { user } = useAuth(); // 사용자 정보
     const [websiteName, setWebsiteName] = useState('');
+    const navigate = useNavigate(); // navigate 훅 추가
 
     // 새로운 navLink 추가
     const handleAddNavLink = () => {
@@ -79,6 +81,11 @@ const Editor = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // 대시보드로 이동하는 핸들러
+    const handleDashboardClick = () => {
+        navigate('/website-builder'); // 대시보드 페이지로 이동
     };
 
     return (
@@ -205,8 +212,13 @@ const Editor = () => {
                     </footer>
                 </div>
             )}
+
+            {/* 대시보드로 가는 버튼 */}
+            <button onClick={handleDashboardClick} style={{ marginTop: '20px' }}>
+                대시보드로 가기
+            </button>
         </div>
     );
 };
 
-export default Editor;
+export default WebsiteEditor;

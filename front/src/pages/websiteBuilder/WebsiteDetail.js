@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom'; // Link를 추가
+import { useParams, Link, useNavigate } from 'react-router-dom'; // useNavigate 추가
 import axiosInstance from '../../utils/axiosInstance';
 
 const WebsiteDetail = () => {
     const { websiteId } = useParams(); // URL에서 websiteId 추출
-    const [website, setWebsite] = useState(null);
+    const [navLinks, setNavLinks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null); // 에러 상태 추가
+    const navigate = useNavigate(); // navigate 훅 추가
 
     useEffect(() => {
         const fetchWebsite = async () => {
             try {
                 const response = await axiosInstance.get(`/api/websites/detail/${websiteId}`);
-                setWebsite(response.data);
+                setNavLinks(response.data.navLinks); // navLinks 데이터 설정
             } catch (error) {
                 console.error('Error fetching website details:', error);
                 setError('Failed to load website details. Please try again later.'); // 에러 메시지 설정
@@ -32,26 +33,31 @@ const WebsiteDetail = () => {
         return <div>{error}</div>; // 에러 상태
     }
 
-    if (!website) {
-        return <div>Website not found.</div>; // 웹사이트가 없을 때
+    if (!navLinks || navLinks.length === 0) {
+        return <div>No navigation links found.</div>; // 내비게이션 링크가 없을 때
     }
+
+    // 대시보드로 이동하는 핸들러
+    const handleDashboardClick = () => {
+        navigate('/website-builder'); // 대시보드 페이지로 이동
+    };
 
     return (
         <div>
-            <h1>{website.headerContent}</h1>
+            <h1>Navigation Links</h1>
+            <button onClick={handleDashboardClick}>Go to Dashboard</button> {/* 대시보드 버튼 */}
             <nav>
                 <ul>
-                    {website.navLinks.map((link) => (
+                    {navLinks.map((link) => (
                         <li key={link.id}>
-                            <Link to={link.path}>{link.name}</Link> {/* Link 컴포넌트로 변경 */}
+                            <h3>{link.name}</h3>
+                            <p>{link.content}</p> {/* 링크 내용 표시 */}
+                            <footer>{link.footer}</footer>
+                            <Link to={link.path}>Go to {link.name}</Link> {/* 링크로 이동 */}
                         </li>
                     ))}
                 </ul>
             </nav>
-            <main>
-                <p>{website.mainContent}</p>
-            </main>
-            <footer>{website.footerContent}</footer>
         </div>
     );
 };

@@ -11,8 +11,8 @@ import RoomDetail from './pages/room/RoomDetail'; // 숙소 상세 페이지 추
 import Reservation from './pages/reservation/Reservation'; // 예약 페이지 추가
 import Chatbot from './pages/chat/Chatbot'; // 챗봇 페이지 추가
 import Stock from './pages/stock/StockPricePredictor'; // 주식 페이지 추가
-import Editor from './pages/websiteBuilder/Editor';         // 웹사이트 에디터 페이지 추가
-import WebsiteList from './pages/websiteBuilder/WebsiteList'; // 웹사이트 목록 페이지 추가
+import Dashboard from './pages/websiteBuilder/Dashboard'; // 웹사이트 대시보드 페이지 추가
+import WebsiteEditor from './pages/websiteBuilder/WebsiteEditor'; // 웹사이트 에디터 페이지 추가
 import WebsiteDetail from './pages/websiteBuilder/WebsiteDetail'; // 웹사이트 상세보기 페이지 추가
 
 const AuthCheck = () => {
@@ -58,11 +58,11 @@ function App() {
           {/* 숙소 예약 페이지 (로그인된 사용자만 접근 가능) */}
           <Route path="/rooms/:roomId/reserve" element={<ProtectedRoute component={Reservation} />} />
 
-          {/* 웹사이트 빌더 관련 경로 추가 */}
-          <Route path="/website-builder/editor" element={<ProtectedRoute component={Editor} />} />
-          <Route path="/website-builder/list" element={<ProtectedRoute component={WebsiteList} />} />
-          <Route path="/website-builder/website/:websiteId" element={<ProtectedRoute component={WebsiteDetail} />} />
-          
+          {/* 웹사이트 빌더 대시보드 및 관련 경로 추가 */}
+          <Route path="/website-builder" element={<ProtectedRoute component={Dashboard} />} /> {/* 대시보드 */}
+          <Route path="/website-builder/create" element={<ProtectedRoute component={WebsiteEditor} />} /> {/* 웹사이트 생성 페이지 */}
+          <Route path="/website-builder/website/:websiteId" element={<ProtectedRoute component={WebsiteDetail} />} /> {/* 웹사이트 상세보기 */}
+
           {/* 404 Not Found 처리 */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

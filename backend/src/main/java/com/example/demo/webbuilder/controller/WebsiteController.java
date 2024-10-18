@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,5 +72,21 @@ public class WebsiteController {
         Website savedWebsite = websiteRepository.save(website); // 웹사이트 저장
         log.info("Website saved successfully: {}", savedWebsite); // 웹사이트 저장 성공
         return ResponseEntity.status(HttpStatus.CREATED).body(savedWebsite); // 저장된 웹사이트 반환
+    }
+    
+    // 웹사이트 삭제
+    @DeleteMapping("/{websiteId}")
+    public ResponseEntity<Void> deleteWebsite(@PathVariable("websiteId") Long websiteId) {
+        log.info("Deleting website with id: {}", websiteId); // 웹사이트 삭제 시작
+
+        // 웹사이트 존재 여부 확인
+        if (!websiteRepository.existsById(websiteId)) {
+            log.warn("Website not found for websiteId: {}", websiteId); // 웹사이트가 없을 경우 경고
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 반환
+        }
+
+        websiteRepository.deleteById(websiteId); // 웹사이트 삭제
+        log.info("Website with id {} deleted successfully", websiteId); // 웹사이트 삭제 성공
+        return ResponseEntity.noContent().build(); // 성공적으로 삭제되었음을 나타내는 204 No Content 반환
     }
 }
