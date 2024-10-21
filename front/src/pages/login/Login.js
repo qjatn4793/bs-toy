@@ -7,7 +7,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const { login, fetchUserData } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -29,8 +29,9 @@ const Login = () => {
       try {
         const data = JSON.parse(responseText);
         localStorage.setItem('token', data.token);
-        login(); // 인증 상태 업데이트
-        navigate('/docker-service');
+        const user = fetchUserData(data.token);
+        login(user); // 인증 상태 업데이트
+        navigate('/website-builder');
       } catch (error) {
         console.error('JSON 파싱 실패:', error);
         alert('로그인 실패: 서버로부터 올바르지 않은 응답을 받았습니다.');

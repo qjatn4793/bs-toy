@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
     const [websites, setWebsites] = useState([]);
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,10 +47,18 @@ const Dashboard = () => {
         }
     };
 
+    // 로그아웃 핸들러
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // JWT 토큰 삭제
+        logout(); // AuthContext에서 로그아웃 상태 변경
+        navigate('/login'); // 로그인 페이지로 리다이렉트
+    };
+
     return (
         <div>
             <h1>My Websites</h1>
             <button onClick={handleAddWebsite}>Add Website</button> {/* 웹사이트 추가 버튼 */}
+            <button onClick={handleLogout} style={{ marginLeft: '20px' }}>Logout</button> {/* 로그아웃 버튼 추가 */}
             <ul>
                 {websites.map((website) => (
                     <li key={website.id} onClick={() => handleWebsiteClick(website.id)} style={{ cursor: 'pointer' }}>
