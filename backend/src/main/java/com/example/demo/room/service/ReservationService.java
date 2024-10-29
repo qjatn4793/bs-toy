@@ -24,20 +24,35 @@ public class ReservationService {
 	private final RoomRepository roomRepository;
 	private final ReservationRepository reservationRepository;
 
-    public boolean reserveRoom(Long roomId, Reservation reservation) {
-        Optional<Room> room = roomRepository.findById(roomId);
-        if (room.isPresent()) {
+    public String reserveRoom(Long roomId, Reservation reservation) {
+        Optional<Room> roomOpt = roomRepository.findById(roomId);
+        if (roomOpt.isPresent()) {
+        	
+        	Room room = roomOpt.get();
+        	
+        	// 방의 갯수가 0개인 경우 예약 불가
+            if (room.getQuantity() <= 0) {
+                return "예약 가능한 방이 없습니다.";
+            }
+        	
         	// 중복 예약 확인 로직 추가
+        	/*
             if (isOverlappingReservation(roomId, reservation.getStartDate(), reservation.getEndDate())) {
                 return false; // 중복된 예약이 있는 경우 예약 실패
             }
+            */
         	
-            reservation.setRoom(room.get());
+            reservation.setRoom(room);
             reservation.setReservationDate(LocalDateTime.now());
             reservationRepository.save(reservation); // 예약 저장
-            return true;
+            
+            // 방의 갯수를 차감
+            room.setQuantity(room.getQuantity() - 1);
+            roomRepository.save(room);
+            
+            return "예약이 성공적으로 완료되었습니다!";
         } else {
-            return false; // 방을 찾지 못한 경우
+            return "예약 가능한 방을 찾을 수 없습니다."; // 방을 찾지 못한 경우
         }
     }
     

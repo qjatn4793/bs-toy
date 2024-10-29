@@ -2,19 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker'; // import DatePicker
 import 'react-datepicker/dist/react-datepicker.css'; // import CSS
+import { useAuth } from '../../context/AuthContext';
+import axiosInstance from '../../utils/axiosInstance';
 
 const Reservation = () => {
   const { roomId } = useParams(); // 선택된 숙소 ID
   const [startDate, setStartDate] = useState(null); // 예약 시작 날짜
   const [endDate, setEndDate] = useState(null); // 예약 종료 날짜
   const [availableDates, setAvailableDates] = useState([]); // 예약 가능한 날짜 목록
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchAvailableDates = async () => {
+      if (!user) {
+        return; // 유저가 없으면 함수 종료
+      }
+
       try {
-        const response = await fetch(`${API_URL}/api/rooms/${roomId}/available-dates`);
+        const response = await axiosInstance.get(`/api/rooms/${roomId}/available-dates`);
         if (response.ok) {
           const data = await response.json();
           setAvailableDates(data); // 서버에서 받은 예약 가능한 날짜 목록 설정
@@ -27,7 +33,7 @@ const Reservation = () => {
     };
 
     fetchAvailableDates(); // 컴포넌트가 마운트될 때 예약 가능한 날짜를 가져옵니다.
-  }, [API_URL, roomId]);
+  }, [roomId]);
 
   const handleReservationSubmit = async (event) => {
     event.preventDefault();
@@ -52,24 +58,24 @@ const Reservation = () => {
     console.log('Formatted Start Date:', formattedStartDate);
     console.log('Formatted End Date:', formattedEndDate);
 
-    // 예약 요청 보내기
-    const response = await fetch(`${API_URL}/api/rooms/${roomId}/reserve`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ startDate: formattedStartDate, endDate: formattedEndDate }),
-    });
+    try {
+        // 예약 요청 보내기
+        const response = await axiosInstance.post(`/api/rooms/${roomId}/reserve`, 
+            JSON.stringify({ startDate: formattedStartDate, endDate: formattedEndDate }),
+            { headers: { 'Content-Type': 'application/json' } } // 헤더를 설정하여 JSON 포맷을 명시
+        );
 
-    if (response.ok) {
-        const successMessage = await response.text(); // 성공 메시지를 읽기
-        alert(successMessage);
-        navigate('/'); // 메인 페이지로 이동
-    } else {
-        const errorMessage = await response.text(); // 오류 메시지를 읽기
-        alert(errorMessage);
+        // 성공 메시지 처리
+        alert(response.data || 'Reservation successful!'); // response.data에 message가 있을 경우 사용
+        navigate('/rooms'); // 메인 페이지로 이동
+    } catch (error) {
+        // 오류 처리
+        console.error('Error during reservation:', error);
+        const errorMessage = error.response ? error.response.data.message : 'An error occurred';
+        alert(errorMessage); // 오류 메시지 알림
     }
   };
+
 
   // 특정 날짜가 예약 가능한지 확인하는 헬퍼 함수
   const isDateAvailable = (date) => {
@@ -83,8 +89,8 @@ const Reservation = () => {
     });
   };
 
-  const handleHomeAccess = () => {
-    navigate('/home'); // 홈 페이지로 이동
+  const handleRoomsAccess = () => {
+    navigate('/rooms'); // 홈 페이지로 이동
   };
 
   return (
@@ -96,7 +102,7 @@ const Reservation = () => {
           <DatePicker
             selected={startDate}
             onChange={(date) => setStartDate(date)}
-            filterDate={isDateAvailable} // 필터링된 날짜만 선택 가능
+            // filterDate={isDateAvailable} // 필터링된 날짜만 선택 가능
             dateFormat="yyyy/MM/dd"
             placeholderText="Select a start date"
             required
@@ -107,7 +113,7 @@ const Reservation = () => {
           <DatePicker
             selected={endDate}
             onChange={(date) => setEndDate(date)}
-            filterDate={isDateAvailable} // 필터링된 날짜만 선택 가능
+            // filterDate={isDateAvailable} // 필터링된 날짜만 선택 가능
             dateFormat="yyyy/MM/dd"
             placeholderText="Select an end date"
             required
@@ -115,7 +121,7 @@ const Reservation = () => {
         </div>
         <button type="submit">Confirm Reservation</button>
       </form>
-      <button onClick={handleHomeAccess}>메인으로</button>
+      <button onClick={handleRoomsAccess}>메인으로</button>
     </div>
   );
 };

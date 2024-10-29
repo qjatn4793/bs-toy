@@ -6,9 +6,9 @@ import Register from './pages/register/Register';
 import DockerService from './pages/docker/DockerService';
 import GuestService from './pages/guest/GuestService';
 import ProtectedRoute from './components/ProtectedRoute';
-import Home from './pages/home/Home'; // 숙소 목록 페이지 추가
+import Room from './pages/room/Room'; // 숙소 목록 페이지 추가
 import RoomDetail from './pages/room/RoomDetail'; // 숙소 상세 페이지 추가
-import Reservation from './pages/reservation/Reservation'; // 예약 페이지 추가
+import Reservation from './pages/room/Reservation'; // 예약 페이지 추가
 import Chatbot from './pages/chat/Chatbot'; // 챗봇 페이지 추가
 import Stock from './pages/stock/StockPricePredictor'; // 주식 페이지 추가
 import Dashboard from './pages/websiteBuilder/Dashboard'; // 웹사이트 대시보드 페이지 추가
@@ -22,7 +22,7 @@ const AuthCheck = () => {
     return <div>Loading...</div>; // 로딩 중일 때 보여줄 UI
   }
 
-  return isAuthenticated ? <Navigate replace to="/docker-service" /> : <Navigate replace to="/login" />;
+  return isAuthenticated ? <Navigate replace to="/website-builder" /> : <Navigate replace to="/login" />;
 };
 
 function App() {
@@ -50,7 +50,7 @@ function App() {
           <Route path="/docker-service" element={<ProtectedRoute component={DockerService} />} />
           
           {/* 숙소 목록 페이지 (로그인 여부와 상관없이 접근 가능) */}
-          <Route path="/rooms" element={<Home />} />
+          <Route path="/rooms" element={<Room />} />
           
           {/* 숙소 상세 페이지 (로그인 여부와 상관없이 접근 가능) */}
           <Route path="/rooms/:roomId" element={<RoomDetail />} />

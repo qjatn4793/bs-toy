@@ -53,14 +53,10 @@ public class RoomController {
         log.info("ID {}번 방을 예약합니다.", id);
         log.info("예약 정보: {}", reservation);
         
-        boolean isReserved = reservationService.reserveRoom(id, reservation);
-        if (isReserved) {
-            log.info("ID {}번 방의 예약이 성공적으로 완료되었습니다.", id);
-            return ResponseEntity.ok("예약이 성공적으로 완료되었습니다!");
-        } else {
-            log.error("ID {}번 방의 예약에 실패했습니다. 날짜가 중복됩니다.", id);
-            return ResponseEntity.status(400).body("예약 실패: 선택한 날짜는 이미 예약되었습니다.");
-        }
+        String reserved = reservationService.reserveRoom(id, reservation);
+        
+        log.info("ID {}, {}", id, reserved);
+        return ResponseEntity.ok(reserved);
     }
     
     @GetMapping("/{id}/available-dates")

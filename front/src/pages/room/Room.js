@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import axiosInstance from '../../utils/axiosInstance';
 
 const Home = () => {
   const [rooms, setRooms] = useState([]); // 숙소 목록 상태
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     // API 호출하여 숙소 목록 가져오기
     const fetchRooms = async () => {
-      const response = await fetch(`${API_URL}/api/rooms`); // 서버에서 숙소 정보 가져옴
-      const data = await response.json();
-      setRooms(data);
+      if (!user) {
+        return; // 유저가 없으면 함수 종료
+      }
+
+      try {
+        const response = await axiosInstance.get(`/api/rooms`); // 서버에서 숙소 정보 가져옴
+        setRooms(response.data);
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+      }
     };
     fetchRooms();
-  }, []);
+  }, [user]);
 
   const handleRoomClick = (roomId) => {
     navigate(`/rooms/${roomId}`); // 개별 숙소 상세 페이지로 이동
