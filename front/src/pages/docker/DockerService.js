@@ -25,12 +25,6 @@ const DockerService = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token'); // JWT 토큰 삭제
-    logout(); // AuthContext에서 로그아웃 상태 변경
-    navigate('/login'); // 로그인 페이지로 리다이렉트
-  };
-
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
       <h1>My Docker Service App</h1>
@@ -50,8 +44,6 @@ const DockerService = () => {
           <pre>{logs}</pre>
         </div>
       )}
-      {/* 로그아웃 버튼 추가 */}
-      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 };

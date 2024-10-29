@@ -91,15 +91,9 @@ const WebsiteDetail = () => {
         document.body.removeChild(link);
     };
 
-    // 대시보드로 이동하는 핸들러
-    const handleDashboardClick = () => {
-        navigate('/website-builder'); // 대시보드 페이지로 이동
-    };
-
     return (
         <div>
             <h1>Navigation Links</h1>
-            <button onClick={handleDashboardClick}>Go to Dashboard</button> {/* 대시보드 버튼 */}
 
             {/* 내비게이션 탭 */}
             <nav>

@@ -1,0 +1,115 @@
+.mapContainer {
+  display: flex; /* Flexbox로 변경 */
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: center; /* 수평 중앙 정렬 */
+  justify-content: center; /* 수직 중앙 정렬 */
+  padding: 20px;
+}
+
+.mapTitle {
+  margin-bottom: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(10, 36px);
+  gap: 2px;
+}
+  
+.row {
+  display: contents;
+}
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background-color: #eee; /* 기본 셀 색상 */
+}
+
+.portal {
+  background-color: yellow; /* 포털 색상 */
+}
+
+.player {
+  background-color: blue; /* 플레이어 색상 */
+}
+
+.slime {
+  background-color: green; /* 슬라임 색상 */
+}
+
+.skeleton {
+  background-color: gray; /* 해골 색상 */
+}
+
+.orc {
+  background-color: brown; /* 오크 색상 */
+}
+
+.giant {
+  background-color: purple; /* 거인 색상 */
+}
+
+/* 신규 몬스터 색상 */
+.lizard {
+  background-color: lightgreen; /* 도마뱀 색상 */
+}
+
+.scorpion {
+  background-color: darkorange; /* 전갈 색상 */
+}
+
+.icegoblin {
+  background-color: lightblue; /* 얼음 고블린 색상 */
+}
+
+.fireelemental {
+  background-color: red; /* 불 원소 색상 */
+}
+
+.zombie {
+  background-color: green; /* 좀비 색상 */
+}
+
+.phantom {
+  background-color: white; /* 팬텀 색상 */
+}
+
+.dragon {
+  background-color: darkred; /* 드래곤 색상 */
+}
+
+.phoenix {
+  background-color: orange; /* 피닉스 색상 */
+}
+
+.werewolf {
+  background-color: darkgray; /* 늑대인간 색상 */
+}
+
+.angel {
+  background-color: lightyellow; /* 천사 색상 */
+}
+
+.controls {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.playerMapContainer {
+  margin-top: 20px;
+}
+
+.playerMap {
+  display: grid;
+  grid-template-columns: repeat(10, 40px);
+  gap: 2px;
+}
+
+.player {
+  background-color: blue; /* 플레이어 색상 */
+}

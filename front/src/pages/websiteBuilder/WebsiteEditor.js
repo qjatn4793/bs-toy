@@ -7,7 +7,6 @@ import NavLinkInput from './components/NavLinkInput';
 import NavLinkList from './components/NavLinkList';
 import NavLinkEditor from './components/NavLinkEditor';
 import Preview from './components/Preview';
-import '../../styles/css/WebsiteEditor.css';
 
 const WebsiteEditor = () => {
     const [navLinks, setNavLinks] = useState([]);
